@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+			default-lazy-init="true"
+			>
+
+	
+	<bean id="dataSource" destroy-method="close"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc_driverClass}" />
+		<property name="jdbcUrl" value="${jdbc_url}" />
+		<property name="user" value="${jdbc_user}" />
+		<property name="password" value="${jdbc_password}" />
+		<!--当连接池中的连接用完时，C3P0一次性创建新连接的数目 -->
+		<property name="acquireIncrement" value="10" />
+		<!-- 始化时创建的连接数，应在minPoolSize与maxPoolSize之间取值。默认为3； -->
+		<property name="initialPoolSize" value="5" />
+		<!-- 最大连接数 -->
+		<property name="maxPoolSize" value="100" />
+		<!-- 最小连接数 -->
+		<property name="minPoolSize" value="3" />
+		<!-- 最大空闲时间，超过空闲时间的连接将被丢弃。为0或负数则永不丢弃。默认为0； -->
+		<property name="maxIdleTime" value="60" />
+		<!-- JDBC的标准参数，用以控制数据源内加载的PreparedStatement数量。但由于预缓存的Statement属 于单个Connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素，如果maxStatements与 
+			maxStatementsPerConnection均为0，则缓存被关闭。默认为0； -->
+		<property name="maxStatements" value="64" />
+		<!-- 连接池内单个连接所拥有的最大缓存Statement数。默认为0； -->
+		<property name="maxStatementsPerConnection" value="12" />
+		<!--C3P0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能，通过多线程实现多个操作同时被执行。默认为3； -->
+		<property name="numHelperThreads" value="10" />
+		<!-- 用户修改系统配置参数执行前最多等待的秒数。默认为300； -->
+		<property name="propertyCycle" value="300" />
+	</bean>
+	<!-- 动态数据源配置 -->
+	<bean id="dynamicDataSource" class="org.coody.framework.core.jdbc.DynamicDataSource">
+		<!-- 通过key-value的形式来关联数据源 -->
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="dataSource" key="dataSource"></entry>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSource" />
+	</bean>
+	<!-- 数据源模版配置 -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dynamicDataSource" />
+	</bean>
+	
+</beans>
+
