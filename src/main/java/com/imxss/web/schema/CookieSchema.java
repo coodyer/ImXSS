@@ -11,40 +11,40 @@ import org.coody.framework.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 
 @SuppressWarnings("serial")
-public class CookieSchema extends BaseModel{
-	
-	public CookieSchema(String domain,String cookieLine) {
-		if(!cookieLine.contains("=")) {
+public class CookieSchema extends BaseModel {
+
+	public CookieSchema(String domain, String cookieLine) {
+		if (!cookieLine.contains("=")) {
 			return;
 		}
-		cookieLine=cookieLine.trim();
-		String cookieName=cookieLine.substring(0,cookieLine.indexOf("="));
-		String cookieValue=cookieLine.substring(cookieLine.indexOf("=")+1);
-		this.name=cookieName;
-		this.value=cookieValue;
-		this.domain=domain;
+		cookieLine = cookieLine.trim();
+		String cookieName = cookieLine.substring(0, cookieLine.indexOf("="));
+		String cookieValue = cookieLine.substring(cookieLine.indexOf("=") + 1);
+		this.name = cookieName;
+		this.value = cookieValue;
+		this.domain = domain;
 	}
 
 	private String domain;
-	
-	private Boolean hostOnly=false;
-	
-	private Boolean httpOnly=false;
-	
+
+	private Boolean hostOnly = false;
+
+	private Boolean httpOnly = false;
+
 	private String name;
-	
-	private String path="/";
-	
-	private String sameSite="no_restriction";
-	
-	private Boolean secure=false;
-	
-	private Boolean session=true;
-	
-	private String storeId="0";
-	
+
+	private String path = "/";
+
+	private String sameSite = "no_restriction";
+
+	private Boolean secure = false;
+
+	private Boolean session = true;
+
+	private String storeId = "0";
+
 	private String value;
-	
+
 	private Integer id;
 
 	public String getDomain() {
@@ -134,19 +134,21 @@ public class CookieSchema extends BaseModel{
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
-	public static String buildCookies(String url,String cookie) throws MalformedURLException {
-		if(StringUtil.isNullOrEmpty(cookie)) {
+
+	public static String buildCookies(String url, String cookie) throws MalformedURLException {
+		if (StringUtil.isNullOrEmpty(cookie)) {
 			return null;
 		}
-		URL uri=new URL(url);
-		List<CookieSchema> schemas=new ArrayList<>();
-		String[] lines=cookie.split(";");
-		for(String line:lines) {
-			CookieSchema schema=new CookieSchema(uri.getHost(), line);
-			schema.setId(schemas.size()+1);
+		URL uri = new URL(url);
+		List<CookieSchema> schemas = new ArrayList<>();
+		String[] lines = cookie.split(";");
+		for (String line : lines) {
+			CookieSchema schema = new CookieSchema(uri.getHost(), line);
+			schema.setId(schemas.size() + 1);
 			schemas.add(schema);
 		}
-		return JSON.toJSONString(schemas);
+		String json = JSON.toJSONString(schemas);
+		json = json.replace("\\\"", "\\\\\"");
+		return json;
 	}
 }
