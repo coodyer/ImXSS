@@ -1,6 +1,8 @@
 package com.imxss.web.controller.user;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -49,9 +51,10 @@ public class ULetterController extends BaseController {
 		UserInfo userInfo = RequestUtil.getUser(request);
 		Pager pager = getBeanAll(Pager.class);
 		pager.setPageSize(12);
-		pager = letterService.loadUserLetters(userInfo.getId(), pager, getPara("keyWorld"), getParaInteger("projectId"));
-		List<LetterInfo> letters =pager.getData();
-		if(!StringUtil.isNullOrEmpty(letters)){
+		pager = letterService.loadUserLetters(userInfo.getId(), pager, getPara("keyWorld"),
+				getParaInteger("projectId"));
+		List<LetterInfo> letters = pager.getData();
+		if (!StringUtil.isNullOrEmpty(letters)) {
 			List<LetterSchema> schemas = PropertUtil.getNewList(letters, LetterSchema.class);
 			for (LetterSchema schema : schemas) {
 				try {
@@ -59,8 +62,8 @@ public class ULetterController extends BaseController {
 					if (project != null) {
 						schema.setProjectName(project.getTitle());
 					}
-					AddressInfo info=ipService.loadIpInfo(schema.getIp());
-					if(info!=null){
+					AddressInfo info = ipService.loadIpInfo(schema.getIp());
+					if (info != null) {
 						schema.setIpInfo(info.toString());
 					}
 				} catch (Exception e) {
@@ -69,8 +72,8 @@ public class ULetterController extends BaseController {
 			pager.setData(schemas);
 		}
 		setAttribute("dataPager", pager);
-		//加载项目列表
-		List<ProjectInfo> projects=projectService.loadProjects(userInfo);
+		// 加载项目列表
+		List<ProjectInfo> projects = projectService.loadProjects(userInfo);
 		setAttribute("projects", projects);
 		keepParas();
 		return "user/letter/letter_list";
@@ -78,10 +81,10 @@ public class ULetterController extends BaseController {
 
 	@RequestMapping("/letterInfo")
 	@Power("letterCenter")
-	public String letterInfo(Integer letterId) {
+	public String letterInfo(Integer letterId) throws UnsupportedEncodingException {
 		UserInfo userInfo = RequestUtil.getUser(request);
 		LetterInfo letter = letterService.loadLetterInfo(letterId);
-		if(letter.getIsReaded()==0){
+		if (letter.getIsReaded() == 0) {
 			letterService.writeLetterStatus(letterId, 1);
 			letter.setIsReaded(1);
 		}
@@ -94,7 +97,7 @@ public class ULetterController extends BaseController {
 		ProjectInfo project = projectService.loadProjectInfo(schema.getProjectId());
 		if (project != null) {
 			schema.setProjectName(project.getTitle());
-			if(letter.getModuleId()==null){
+			if (letter.getModuleId() == null) {
 				letter.setModuleId(project.getModuleId());
 			}
 			ModuleInfo module = moduleService.loadModuleInfo(letter.getModuleId());
@@ -102,9 +105,9 @@ public class ULetterController extends BaseController {
 				schema.setModuleName(module.getTitle());
 			}
 		}
-		if(schema!=null&&schema.getIp()!=null){
-			AddressInfo info=ipService.loadIpInfo(schema.getIp());
-			if(info!=null){
+		if (schema != null && schema.getIp() != null) {
+			AddressInfo info = ipService.loadIpInfo(schema.getIp());
+			if (info != null) {
 				schema.setIpInfo(info.toString());
 			}
 		}
@@ -112,12 +115,12 @@ public class ULetterController extends BaseController {
 		// 加载信封参数
 		List<LetterParas> paras = letterService.loadParas(letterId);
 		setAttribute("letterParas", paras);
-		//格式化cookie
-		LetterParas para=PropertUtil.getByList(paras,"paraName", "cookie");
-		if(!StringUtil.hasNull(para,letter.getRefUrl())) {
+		// 格式化cookie
+		LetterParas para = PropertUtil.getByList(paras, "paraName", "cookie");
+		if (!StringUtil.hasNull(para, letter.getRefUrl())) {
 			try {
-				String cookie=CookieSchema.buildCookies(letter.getRefUrl(), para.getParaValue());
-				setAttribute("cookieX", cookie);
+				String cookie = CookieSchema.buildCookies(letter.getRefUrl(), para.getParaValue());
+				setAttribute("cookieX", URLEncoder.encode(cookie, "UTF-8"));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
@@ -132,12 +135,12 @@ public class ULetterController extends BaseController {
 		UserInfo userInfo = RequestUtil.getUser(request);
 		LetterInfo letter = letterService.loadLetterInfo(id);
 		if (letter == null || letter.getUserId() != userInfo.getId().intValue()) {
-			return new MsgEntity(-1,"无权操作");
+			return new MsgEntity(-1, "无权操作");
 		}
-		Long code=letterService.delLetterInfo(letter);
-		if(code<1){
-			return new MsgEntity(-1,"操作失败");
+		Long code = letterService.delLetterInfo(letter);
+		if (code < 1) {
+			return new MsgEntity(-1, "操作失败");
 		}
-		return new MsgEntity(0,"操作成功");
+		return new MsgEntity(0, "操作成功");
 	}
 }
