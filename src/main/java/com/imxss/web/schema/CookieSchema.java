@@ -148,7 +148,7 @@ public class CookieSchema extends BaseModel {
 			schemas.add(schema);
 		}
 		String json = JSON.toJSONString(schemas);
-		json = json.replace("\\\"", "\\\\\"");
+		json = json.replace("\\\"", "\\\\\\\"");
 		return json;
 	}
 }
