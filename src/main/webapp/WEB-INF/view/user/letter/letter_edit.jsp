@@ -116,7 +116,7 @@
 <script>
 	function doFormat(){
 		var cookie='${cookieX}';
-		$("#cookie").val(cookie);
+		$("#cookie").val(unescape(cookie));
 	}
 </script>
 </html>
