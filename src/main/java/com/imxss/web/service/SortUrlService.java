@@ -24,7 +24,7 @@ public class SortUrlService {
 	private String getSortUrlImplSina(String url) {
 		try {
 			HttpEntity entity = HttpUtil
-					.Get("http://ln.mk/short/create?unionId=3056c4478c744127bc8cd0fadf603d29&url=" + url.replace("http:", "").replace("https:", ""));
+					.Get("http://ln.mk/short/create?unionId=4149bfc7df0c496c84715714e02914f5&url=" + url.replace("http:", "").replace("https:", ""));
 			String html = entity.getHtml();
 			System.out.println(html);
 			MsgEntity result=JSON.parseObject(html, MsgEntity.class);
